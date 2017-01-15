@@ -3340,10 +3340,9 @@
 }
 
 .word-item{
-  background-color: #00bcd4;
-  border: 1px solid #2196f3;
-  margin: 8px;
-  padding: 8px;
-  font-size: 20px;
-  color: dark-blue;
+  font-size: 18px;
+}
+
+.btn, .btn-group{
+  float:right;
 }
