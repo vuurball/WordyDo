@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" 
+        content="width=device-width">
+  <title>JS Bin</title>
+</head>
+<body>
+
+  <h1>My words:</h1>
+  
+  
+  <div class="animated word-item" transition="mywords" v-for="word in mywords">
+    <span title="{{ word.origin }}">{{ word.trans }}</span> 
+    <button @click="removeWord(word)"> Delete </button>  
+    <button @click="markLearned(word)"> Learned </button>  
+  </div>
+  
+  
+  <h3>Learned words:</h3>
+  
+
+  <div class="animated word-item" transition="learnedwords" v-for="word in learnedwords">
+    <span title="{{ word.origin }}">{{ word.trans }}</span> 
+    <button @click="addToMyWords(word)"> Return To List </button>  
+  </div>
+
+  
+  <h3>Hidden words:</h3>
+  
+
+  <div class="animated word-item" transition="hiddenwords" v-for="word in hiddenwords">
+    <span title="{{ word.origin }}">{{ word.trans }}</span> 
+  </div>
+
+
+  
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.15/vue.min.js"></script>
+
+  
+  </body>
+</html>
