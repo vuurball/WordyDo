@@ -1,72 +1,90 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" 
-        content="width=device-width">
-  <title>JS Bin</title>
-</head>
-<body>
-  <br>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" 
+              content="width=device-width">
+        <title>JS Bin</title>
+    </head>
+    <body>
+        <br>
 
-  
-  <input @keyup.enter="addNewWord" type="text" class="form-control"  
-         v-model="newWord" placeholder="[NL] - [EN]">
-  <br> 
- 
-  <div class="panel panel-primary">
-    <div class="panel-heading">My words</div>
-    <div class="panel-body">
-      <ul class="list-group">
-        <li class="animated word-item list-group-item" transition="mywords" v-for="word in mywords">
-          {{ word.trans }}         
-          
-          <div class="btn-group" role="group" aria-label="...">
-            <button @click="removeWord(word)" type="button" class="btn btn-default">
-                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-            </button>
-            <button @click="markLearned(word)" type="button" class="btn btn-success">
-                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-            </button>         
-          </div>
-          
-        </li>
-      </ul>
-    </div>
-  </div>
+        <input @keyup.enter="addNewWord" type="text" class="form-control"  
+                v-model="newWord" placeholder="[NL] - [EN]">
+        <br> 
 
-  <div class="panel panel panel-success">
-    <div class="panel-heading">Learned words</div>
-    <div class="panel-body">
-      <ul class="list-group">
-        <li class="animated word-item list-group-item" transition="learnedwords" v-for="word in learnedwords">
-          {{ word.trans }}       
-          <button @click="learnWordAgain(word)" type="button" class="btn btn-primary">
-            <span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-  
-  <div class="panel panel-default">
-    <div class="panel-heading">Hidden words</div>
-    <div class="panel-body">
-      <ul class="list-group">
-        <li class="animated word-item list-group-item" transition="hiddenwords" v-for="word in hiddenwords">
-          {{ word.trans }}          
-          <button @click="unHideAWord(word)" type="button" class="btn btn-primary">
-            <span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
-          </button>
-        </li>
-      </ul>     
-    </div>
-  </div>
-  
-  
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.15/vue.min.js"></script>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                My words 
+                <span class="label label-info">{{ mywords.length}}</span>
+                <button type="button" @click="toggleLanguage" class="btn btn-default pull-right">
+                    {{ showTrans ? 'NL' : 'EN' }}    
+                </button>
+                <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+                <p v-if="mywords.length ==0">
+                    Add new words to your brain 
+                    <span class="glyphicon glyphicon-sunglasses" aria-hidden="true"></span>
+                </p>
+                <ul class="list-group">
+                    <li class="animated list-group-item" transition="mywords" v-for="word in mywords">
+                        {{ showTrans ? word.origin : word.trans }}             
+                        <div class="btn-group pull-right" role="group" aria-label="...">
+                            <button @click="removeWord(word)" type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                            <button @click="markLearned(word)" type="button" class="btn btn-success">
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            </button>         
+                        </div>
+                        <div class="clearfix"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
-  
-  </body>
+        <div class="panel panel panel-success">
+            <div class="panel-heading">
+                Learned words 
+                <span class="label label-success">{{ learnedwords.length}}</span>
+            </div>
+            <div class="panel-body">
+                <p v-if="learnedwords.length ==0">You know nothing yet <span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span></p>
+                <ul class="list-group">
+                    <li class="animated list-group-item" transition="learnedwords" v-for="word in learnedwords">
+                        {{ showTrans ? word.trans : word.origin }}   
+                        <button @click="learnWordAgain(word)" type="button" class="btn btn-primary pull-right">
+                            <span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
+                        </button>
+                        <div class="clearfix"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Hidden words
+                <span class="label label-default">{{ hiddenwords.length}}</span>
+            </div>
+            <div class="panel-body">
+                <ul class="list-group">
+                    <li class="animated list-group-item" transition="hiddenwords" v-for="word in hiddenwords">
+                        {{ showTrans ? word.trans : word.origin }}          
+                        <button @click="unHideAWord(word)" type="button" class="btn btn-primary pull-right">
+                            <span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
+                        </button>
+                        <div class="clearfix"></div>
+                    </li>
+                </ul>     
+            </div>
+        </div>
+
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.15/vue.min.js"></script>
+        <script src="js/main.js"></script>
+        <link rel="stylesheet" href="css/main.css">
+
+    </body>
 </html>
