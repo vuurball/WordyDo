@@ -3342,6 +3342,7 @@
 
 .list-group-item{
     font-size: 21px;
+    cursor: pointer;
 }
 
 .panel-heading  { 
