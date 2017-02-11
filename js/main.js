@@ -23,49 +23,51 @@ new Vue({
         newWordTrans: '',
         newWordOrigin: '',
         mywords: [
-//            {trans: 'een', origin: 'one'},
-//            {trans: 'twee', origin: 'two'},
-//            {trans: 'drie', origin: 'three'},
-//            {trans: 'vier', origin: 'four'},
-//            {trans: 'vijf', origin: 'five'},
-//            {trans: 'zes', origin: 'six'},
-//            {trans: 'zeven', origin: 'seven'},
-//            {trans: 'acht', origin: 'eight'},
+            //            {trans: 'een', origin: 'one'},
+            //            {trans: 'twee', origin: 'two'},
+            //            {trans: 'drie', origin: 'three'},
+            //            {trans: 'vier', origin: 'four'},
+            //            {trans: 'vijf', origin: 'five'},
+            //            {trans: 'zes', origin: 'six'},
+            //            {trans: 'zeven', origin: 'seven'},
+            //            {trans: 'acht', origin: 'eight'},
         ],
         learnedwords: [
-//            {trans: 'huis', origin: 'home'},
+            //            {trans: 'huis', origin: 'home'},
         ],
         hiddenwords: [
             // {trans: 'Olga', origin: 'olga'},
-        ]
+        ],
+        db: ''
     },
     ready: function () {
-        //get the lists content from cookie
-        var listsArr = JSON.parse(this.getCookie('wordslist'));
-        //ini each list
-        this.mywords = listsArr['mywords'];
-        this.learnedwords = listsArr['learnedwords'];
-        this.hiddenwords = listsArr['hiddenwords'];
-        //add showHint=false property to each word in mywords list
-        this.mywords.forEach(function (obj) {
-            obj.showHint = false;
-        });
+        
+        this.db = new Firebase('https://olgabdb-f2ace.firebaseio.com/');
+		
+		this.db.child('vocab/mywords').on('child_added', function (snapshot) {			
+				this.pushToList({trans: snapshot.val().trans, origin: snapshot.val().origin, showHint: false}, this.mywords);
+			}.bind(this)
+		);
+
+		this.db.child('vocab/learnedwords').on('child_added', function (snapshot) {			
+				this.pushToList({trans: snapshot.val().trans, origin: snapshot.val().origin}, this.learnedwords);
+			}.bind(this)
+		);
+		
+		this.db.child('vocab/hiddenwords').on('child_added', function (snapshot) {			
+				this.pushToList({trans: snapshot.val().trans, origin: snapshot.val().origin}, this.hiddenwords);
+			}.bind(this)
+		);
     },
     methods: {
+		pushToList: function(newWordObj, list){
+			list.push(newWordObj);
+		},
         addNewWord: function () {
             var newWordObj = {trans: this.newWordTrans, origin: this.newWordOrigin, showHint: false};
-            this.mywords.push(newWordObj);
-            this.newWordOrigin = this.newWordTrans = '';
-
-//            var newWordArr = this.newWord.split('-');
-//            if (newWordArr.length === 2) {
-//                var newWordObj = {trans: newWordArr[0], origin: newWordArr[1]};
-//                this.mywords.push(newWordObj);
-//                this.newWord = '';
-//            } else {
-//                this.newWord = this.newWord + ' ' + 'ERROR';
-//            }
-
+			var activeVisitorRef = this.db.child('vocab/mywords').push(newWordObj, function () {});
+            this.newWordOrigin = this.newWordTrans = '';      
+            
         },
         removeWord: function (item) {
             this.mywords.$remove(item);
@@ -96,31 +98,12 @@ new Vue({
             document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
         },
         checkCookie: function () {
-            var username = getCookie("username");
-            if (username != "") {
-                alert("Welcome again " + username);
-            } else {
-                username = prompt("Please enter your name:", "");
-                if (username != "" && username != null) {
-                    setCookie("username", username, 365);
-                }
-            }
+          
         },
         getCookie: function (cname) {
-            var name = cname + "=";
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
+          
         }
-
+        
     },
     watch: {
         mywords: function () {
