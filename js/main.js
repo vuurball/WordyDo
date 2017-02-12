@@ -52,14 +52,13 @@ new Vue({
         },
         //remove word from list by wordId
         removeFromVueList: function(wordId, list) {
-            var i = list.map(item = > item.id).indexOf(wordId) // find index the item in a list
-            list.splice(i, 1) // remove it from the list          
+            var i = list.map(item => item.id).indexOf(wordId); // find index the item in a list
+            list.splice(i, 1); // remove it from the list          
         },
         //add new word to collection - mywords 
         addNewWord: function() {
             var newWordObj = {trans: this.newWordTrans, origin: this.newWordOrigin, showHint: false};
-            this.db.child('vocab/mywords').push(newWordObj, function() {
-            });
+            this.db.child('vocab/mywords').push(newWordObj, function() {});
             this.resetNewWord();
         },
         resetNewWord: function() {
