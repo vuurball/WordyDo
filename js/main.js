@@ -25,65 +25,62 @@ new Vue({
         mywords: [
             //            {trans: 'een', origin: 'one'},
             //            {trans: 'twee', origin: 'two'},
-            //            {trans: 'drie', origin: 'three'},
-            //            {trans: 'vier', origin: 'four'},
-            //            {trans: 'vijf', origin: 'five'},
-            //            {trans: 'zes', origin: 'six'},
-            //            {trans: 'zeven', origin: 'seven'},
-            //            {trans: 'acht', origin: 'eight'},
         ],
-        learnedwords: [
-            //            {trans: 'huis', origin: 'home'},
-        ],
-        hiddenwords: [
-            // {trans: 'Olga', origin: 'olga'},
-        ],
+        learnedwords: [],
+        hiddenwords: [],
         db: ''
     },
     ready: function () {
-        
+        //connect to db
         this.db = new Firebase('https://olgabdb-f2ace.firebaseio.com/');
-		
-		this.db.child('vocab/mywords').on('child_added', function (snapshot) {			
-				this.pushToList({trans: snapshot.val().trans, origin: snapshot.val().origin, showHint: false}, this.mywords);
-			}.bind(this)
-		);
-
-		this.db.child('vocab/learnedwords').on('child_added', function (snapshot) {			
-				this.pushToList({trans: snapshot.val().trans, origin: snapshot.val().origin}, this.learnedwords);
-			}.bind(this)
-		);
-		
-		this.db.child('vocab/hiddenwords').on('child_added', function (snapshot) {			
-				this.pushToList({trans: snapshot.val().trans, origin: snapshot.val().origin}, this.hiddenwords);
-			}.bind(this)
-		);
+		//populate lists from db and register changes-feed listener 
+        this.registerChangesFeed();
     },
     methods: {
-		pushToList: function(newWordObj, list){
-			list.push(newWordObj);
-		},
+        //populates lists from db, and listens to added/removed changes
+        registerChangesFeed: function(){   
+            var vuethis = this;
+            var listNames = ['mywords', 'learnedwords', 'hiddenwords'];
+            listNames.forEach(function(listName){
+                var cur_list = vuethis.getListByName(listName);
+                 //register child_added event on all lists
+                vuethis.db.child('vocab/'+listName).on('child_added', function (snapshot) {          
+                        cur_list.push({id: snapshot.name(), trans: snapshot.val().trans, origin: snapshot.val().origin, showHint: false});
+                    }
+                );
+                 //register child_removed event on all lists
+                vuethis.db.child('vocab/'+listName).on('child_removed', function (snapshot) {
+                    vuethis.removeFromVueList(snapshot.name(), cur_list);
+                });
+            });
+        },
+        //remove word from list by wordId
+        removeFromVueList: function(wordId, list){
+            var i = list.map(item => item.id).indexOf(wordId) // find index the item in a list
+            list.splice(i, 1) // remove it from the list          
+        },
+        //add new word to collection - mywords 
         addNewWord: function () {
             var newWordObj = {trans: this.newWordTrans, origin: this.newWordOrigin, showHint: false};
-			var activeVisitorRef = this.db.child('vocab/mywords').push(newWordObj, function () {});
-            this.newWordOrigin = this.newWordTrans = '';      
-            
+			this.db.child('vocab/mywords').push(newWordObj, function () {});
+            this.newWordOrigin = this.newWordTrans = '';
         },
         removeWord: function (item) {
-            this.mywords.$remove(item);
-            this.hiddenwords.push(item);
+            this.moveWord(item, 'mywords', 'hiddenwords');    
         },
         markLearned: function (item) {
-            this.mywords.$remove(item);
-            this.learnedwords.push(item);
+            this.moveWord(item, 'mywords', 'learnedwords');     
         },
         unHideAWord: function (item) {
-            this.hiddenwords.$remove(item);
-            this.mywords.push(item);
+            this.moveWord(item, 'hiddenwords', 'mywords');      
         },
         learnWordAgain: function (item) {
-            this.learnedwords.$remove(item);
-            this.mywords.push(item);
+            this.moveWord(item, 'learnedwords', 'mywords');
+        },
+        //move word from collection to collection
+        moveWord: function(item, from, to){
+            this.db.child('vocab/'+to).push(item, function () {});
+            this.db.child('vocab/'+from+'/'+item.id).remove();  
         },
         toggleLanguage: function () {
             this.showTrans = !this.showTrans;
@@ -91,28 +88,16 @@ new Vue({
         toggleHint: function (item) {
             item.showHint = !item.showHint;
         },
-        setCookie: function (cname, cvalue, exdays) {
-            var d = new Date();
-            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-            var expires = "expires=" + d.toUTCString();
-            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-        },
-        checkCookie: function () {
-          
-        },
-        getCookie: function (cname) {
-          
-        }
-        
-    },
-    watch: {
-        mywords: function () {
-            //remove showHint=false property from each word in mywords list before saving
-            this.mywords.forEach(function (obj) {
-                obj.showHint === undefined;
-            });
-            var listsArr = {'mywords': this.mywords, 'learnedwords': this.learnedwords, 'hiddenwords': this.hiddenwords};
-            this.setCookie('wordslist', JSON.stringify(listsArr), 5);
-        },
-    }
+         //get the relevant list instance by name
+        getListByName: function(listName){  
+            switch(listName) {
+                case 'mywords':                
+                    return this.mywords;
+                case 'learnedwords':
+                    return this.learnedwords;
+                case 'hiddenwords':      
+                    return this.hiddenwords;
+            }      
+        },    
+    },  
 });
