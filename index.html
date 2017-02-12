@@ -40,7 +40,7 @@
             <ul class="list-group">
                 <li @click="toggleHint(word)" class="animated list-group-item" transition="mywords" v-for="word in mywords">
                     {{ showTrans ? word.trans : word.origin }}
-                    <span v-show="word.showHint" class="label label-info">{{ showTrans ? word.trans :  word.origin }}</span>
+                    <span v-show="word.showHint" class="label label-info">{{ showHint ? word.trans :  word.origin }}</span>
                     
                     <div class="btn-group pull-right" role="group" aria-label="...">
                         <button @click="removeWord(word)" type="button" class="btn btn-default">
