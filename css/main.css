@@ -5,8 +5,9 @@
 }
 
 #show-dialog {
-	float:right; 
-	margin: 8px;
+	position: absolute;
+	right: 11px; 
+	bottom: 11px;
 }
 
 #lang-flag {
